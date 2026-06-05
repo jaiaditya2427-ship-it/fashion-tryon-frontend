@@ -313,7 +313,7 @@ export default function App() {
     }, 8000);
 
     try {
-      const res = await fetch("http://localhost:5000/tryon", {
+      const res = await fetch(fetch("https://fashion-tryon-backend1.onrender.com/tryon", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -561,7 +561,7 @@ export default function App() {
                   {icon:"📸",lbl:"Instagram",fn:shareInstagram},
                   {icon:"📤",lbl:"More Apps",fn:shareNative},
                   {icon:"⬇️",lbl:"Download",fn:download},
-                  {icon:"🔗",lbl:"Copy Link",fn:copyLink},
+                  {icon:"🔗",lbl:"Co py Link",fn:copyLink},
                   {icon:"✕",lbl:"Cancel",fn:()=>{click();setShareOpen(false)}},
                 ].map((item,i) => (
                   <div key={i} className="shi" onClick={item.fn}>
@@ -579,4 +579,4 @@ export default function App() {
       </div>
     </>
   );
-}
+} 
