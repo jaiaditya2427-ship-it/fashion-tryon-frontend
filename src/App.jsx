@@ -1,9 +1,9 @@
 import { useState, useRef, useCallback } from "react";
 
 // ── Backend URL ───────────────────────────────────────────────────────────────
-const BACKEND = "https://fashion-tryon-backend1.onrender.com";
+const BACKEND = "https://fashion-tryon-backend1.onrender.com/tryon";
 
-// ── Audio ─────────────────────────────────────────────────────────────────────
+// ── Audio ─────────────────────────────────────────────────────── ──────────────
 const AudioEngine = {
   ctx: null,
   init() { if (!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)(); return this; },
