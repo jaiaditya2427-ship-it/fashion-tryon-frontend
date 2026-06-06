@@ -1,7 +1,7 @@
 import { useState, useRef, useCallback } from "react";
 
 // ── Backend URL ───────────────────────────────────────────────────────────────
-const BACKEND = "https://fashion-tryon-backend1.onrender.com/tryon";
+const BACKEND = "https://fashion-tryon-backend1.onrender.com";
 
 // ── Audio ─────────────────────────────────────────────────────── ──────────────
 const AudioEngine = {
