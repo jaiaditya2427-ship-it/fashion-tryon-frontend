@@ -540,7 +540,17 @@ export default function App() {
                         <>
                           <div className="u-icon">{garment.icon}</div>
                           <div className="u-title">Garment</div>
-                          <div className="u-sub">Tap to upload</div>
+<div className="u-sub">Upload cloth image</div>
+
+<button
+  className="uov-btn"
+  onClick={(e) => {
+    e.stopPropagation();
+    clothRef.current.click();
+  }}
+>
+  Upload Image
+</button>
                           <div className="u-cam-hint">flat lay works best</div>
                         </>
                       )}
