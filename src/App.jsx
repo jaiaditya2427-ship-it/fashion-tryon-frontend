@@ -500,9 +500,21 @@ export default function App() {
                       ) : (
                         <>
                           <div className="u-icon">📷</div>
-                          <div className="u-title">Customer</div>
-                          <div className="u-sub">Tap to upload</div>
-                          <div className="u-cam-hint">or take photo</div>
+<div className="u-title">Customer Photo</div>
+<div className="u-sub">Upload or capture image</div>
+
+<button
+  className="uov-btn"
+  style={{ marginTop: "10px" }}
+  onClick={(e) => {
+    e.stopPropagation();
+    personRef.current.click();
+  }}
+>
+  Upload Image
+</button>
+
+<div className="u-cam-hint">Clear face works best</div>
                         </>
                       )}
                     </div>
