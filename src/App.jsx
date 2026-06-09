@@ -36,8 +36,11 @@ const haptic = (t="light") => {
 const GARMENT_TYPES = [
   { label:"T-Shirt",  short:"Top",    icon:"👕", category:"upper_body" },
   { label:"Pants",    short:"Bottom", icon:"👖", category:"lower_body" },
-  { label:"Dress",    short:"Dress",  icon:"👗", category:"dresses"    },
+  { label:"Dress",    short:"Dress",  icon:"👗", category:"dresses" },
   { label:"Jacket",   short:"Jacket", icon:"🧥", category:"upper_body" },
+
+  { label:"Saree",    short:"Saree",  icon:"🥻", category:"dresses" },
+  { label:"Lehenga",  short:"Lehenga",icon:"✨", category:"dresses" },
 ];
 
 const LOAD_MESSAGES = [
