@@ -36,10 +36,13 @@ const haptic = (t = "light") => {
 
 // ── Garment Types ─────────────────────────────────────────────────────────────
 const GARMENT_TYPES = [
-  { id: "upper_body", label: "T-Shirt",  short: "Top",    icon: "👕", category: "upper_body" },
-  { id: "lower_body", label: "Pants",    short: "Bottom", icon: "👖", category: "lower_body" },
-  { id: "dresses",    label: "Dress",    short: "Dress",  icon: "👗", category: "dresses"    },
-  { id: "jacket",     label: "Jacket",   short: "Jacket", icon: "🧥", category: "upper_body" },
+  { label:"T-Shirt",  short:"Top",    icon:"👕", category:"upper_body" },
+  { label:"Pants",    short:"Bottom", icon:"👖", category:"lower_body" },
+  { label:"Dress",    short:"Dress",  icon:"👗", category:"dresses" },
+  { label:"Jacket",   short:"Jacket", icon:"🧥", category:"upper_body" },
+
+  { label:"Saree",    short:"Saree",  icon:"🥻", category:"dresses" },
+  { label:"Lehenga",  short:"Lehenga",icon:"✨", category:"dresses" },
 ];
 
 // ── Read file as base64 DataURL ───────────────────────────────────────────────
@@ -107,7 +110,7 @@ html,body{background:var(--bg);color:var(--cream);font-family:'Inter',sans-serif
 .gsec{padding:0 1.25rem 1.25rem}
 .sec-label{font-size:.6rem;letter-spacing:.28em;text-transform:uppercase;color:var(--muted);margin-bottom:.75rem;display:flex;align-items:center;gap:.6rem}
 .sec-label::after{content:'';flex:1;height:1px;background:var(--border)}
-.gchips{display:grid;grid-template-columns:repeat(4,1fr);gap:.5rem}
+.gchips{display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem}
 .gc{padding:.65rem .25rem;border:1.5px solid var(--border);background:var(--card);display:flex;flex-direction:column;align-items:center;gap:.28rem;cursor:pointer;transition:all .2s;border-radius:8px;position:relative}
 .gc:hover{border-color:var(--gold);background:rgba(212,168,67,.06)}
 .gc.sel{border-color:var(--gold);background:rgba(212,168,67,.1)}
