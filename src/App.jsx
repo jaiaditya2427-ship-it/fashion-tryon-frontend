@@ -504,7 +504,7 @@ export default function App() {
             <div className="wbg"/>
             <Particles/>
             <div className="wcontent">
-              <div className="wbadge">✦ Powered by AI</div>
+              <div className="wbadge">✦ Powered by Idea Infoline</div>
               <div className="wlogo">Fashion<em> Try‑On</em></div>
               <div className="wsub">Virtual Fitting Room</div>
               <div className="wdivider"/>
@@ -524,7 +524,7 @@ export default function App() {
                 : <div style={{width:32}}/>
               }
               <div className="hlogo">Fashion<em> Try‑On</em></div>
-              <div className="hpill">AI Powered</div>
+              <div className="hpill">Idea Infoline</div>
             </header>
 
             {screen==="main" && (
