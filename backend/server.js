@@ -124,10 +124,14 @@ app.post("/tryon", async (req, res) => {
     console.log("Step 2: Removing background for cleaner body detection...");
     let cleanPersonImg = processedPerson;
     try {
+      console.time("BG REMOVE");
+      
       const bgRemoveOutput = await replicate.run(
         "lucataco/remove-bg:95fcc2a26d3899cd6c2691c900465aaeff466285a65c14638cc5f36f34befaf1",
         { input: { image: processedPerson } }
       );
+
+console.timeEnd("BG REMOVE");
       const bgUrl = Array.isArray(bgRemoveOutput) ? String(bgRemoveOutput[0]) : String(bgRemoveOutput);
       if (bgUrl.startsWith("http")) {
         cleanPersonImg = bgUrl;
