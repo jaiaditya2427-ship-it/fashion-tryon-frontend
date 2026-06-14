@@ -12,60 +12,46 @@ app.use(express.json({ limit: "50mb" }));
 const replicate = new Replicate({ auth: process.env.REPLICATE_API_KEY });
 
 app.get("/", (req, res) => {
-  res.json({ status: "Fashion Try-On Backend is running 🚀", apiKeySet: !!process.env.REPLICATE_API_KEY });
+  res.json({
+    status: "Pooja Textiles AI Try-On Backend 🚀",
+    apiKeySet: !!process.env.REPLICATE_API_KEY,
+  });
 });
 
-// ── Image preprocessing for maximum accuracy ──────────────────────────────────
+// ── Preprocess image ──────────────────────────────────────────────────────────
+// IDM-VTON works best at exactly 768x1024 (portrait)
+// We keep portrait for processing, result comes out portrait matching customer pose
 const preprocessImage = async (dataUrl, type) => {
   try {
     const base64 = dataUrl.split(",")[1];
-    const mimeType = dataUrl.split(";")[0].split(":")[1] || "image/jpeg";
     const buffer = Buffer.from(base64, "base64");
 
-    let processedBuffer;
+    const processedBuffer = await sharp(buffer)
+      .resize(768, 1024, {
+        fit: "contain",
+        background: { r: 255, g: 255, b: 255, alpha: 1 },
+        withoutEnlargement: false,
+        position: "center",
+      })
+      .sharpen({ sigma: type === "garment" ? 1.8 : 1.0 })
+      .jpeg({ quality: type === "garment" ? 95 : 90, progressive: false })
+      .toBuffer();
 
-    if (type === "person") {
-      // Person photo: resize to optimal 768x1024, enhance contrast and sharpness
-      processedBuffer = await sharp(buffer)
-        .resize(640, 896, {
-          fit: "contain",
-          background: { r: 255, g: 255, b: 255, alpha: 1 },
-          withoutEnlargement: false,
-        })
-        .sharpen({ sigma: 1.2, m1: 0.5, m2: 0.5 })
-        .normalise()
-        .jpeg({ quality: 85 })
-        .toBuffer();
-    } else {
-      // Garment photo: resize to 768x1024, white background, max sharpness
-      processedBuffer = await sharp(buffer)
-       .resize(640, 896, { 
-          fit: "contain",
-          background: { r: 255, g: 255, b: 255, alpha: 1 },
-          withoutEnlargement: false,
-        })
-        .sharpen({ sigma: 1.5, m1: 1.0, m2: 0.5 })
-        .normalise()
-        .jpeg({ quality: 88 })
-        .toBuffer();
-    }
-
-    const processed64 = processedBuffer.toString("base64");
-    return `data:image/jpeg;base64,${processed64}`;
+    return `data:image/jpeg;base64,${processedBuffer.toString("base64")}`;
   } catch (e) {
-    console.log("Preprocessing failed, using original:", e.message);
+    console.log("Preprocess failed, using original:", e.message);
     return dataUrl;
   }
 };
 
-// ── Upload to Replicate storage ───────────────────────────────────────────────
+// ── Upload image to Replicate file storage ────────────────────────────────────
 const uploadToReplicate = async (dataUrl) => {
   try {
-    const base64 = dataUrl.split(",")[1];
+    const base64   = dataUrl.split(",")[1];
     const mimeType = dataUrl.split(";")[0].split(":")[1] || "image/jpeg";
-    const buffer = Buffer.from(base64, "base64");
+    const buffer   = Buffer.from(base64, "base64");
 
-    const uploadRes = await fetch("https://api.replicate.com/v1/files", {
+    const res = await fetch("https://api.replicate.com/v1/files", {
       method: "POST",
       headers: {
         Authorization: `Token ${process.env.REPLICATE_API_KEY}`,
@@ -75,88 +61,130 @@ const uploadToReplicate = async (dataUrl) => {
       body: buffer,
     });
 
-    if (!uploadRes.ok) {
-      console.log("Upload failed, using base64 directly");
-      return dataUrl;
-    }
-
-    const file = await uploadRes.json();
+    if (!res.ok) return dataUrl;
+    const file = await res.json();
     const url = file.urls?.get || file.url || dataUrl;
-    console.log("Uploaded to Replicate:", url.substring(0, 60) + "...");
+    console.log("✓ Uploaded:", url.substring(0, 55) + "...");
     return url;
   } catch (e) {
-    console.log("Upload error, using base64:", e.message);
+    console.log("Upload failed, using base64");
     return dataUrl;
   }
 };
 
-// ── Garment description builder for maximum accuracy ─────────────────────────
+// ── Garment descriptions ──────────────────────────────────────────────────────
+// Detailed prompts help IDM-VTON preserve garment details accurately
 const buildGarmentDescription = (garment) => {
-  const descriptions = {
-    "T-Shirt / Shirt": "upper body garment shirt or t-shirt - preserve exact sleeve length whether short half or full long sleeve, preserve exact collar style v-neck round-neck polo collar, preserve exact fit slim regular loose oversized, preserve all design details prints patterns colors exactly",
-    "Pants / Jeans":   "lower body garment pants jeans trousers - preserve exact length full length cropped ankle length, preserve exact fit slim straight wide leg, preserve exact waistband style, preserve all design details color wash distressing exactly",
-    "Dress / Gown":    "full body dress gown - preserve exact length mini midi maxi, preserve exact sleeve style sleeveless short long, preserve exact neckline collar style, preserve silhouette A-line fitted flowy, preserve all design details exactly",
-    "Jacket / Coat":   "outerwear jacket coat - preserve open or closed front style, preserve exact sleeve length, preserve lapel collar style, preserve exact length cropped regular long, preserve all buttons zippers design details exactly",
+  const map = {
+    "T-Shirt / Shirt":
+      "upper body clothing item - shirt or t-shirt. Preserve exact sleeve length (short/half/full), exact collar style (v-neck/round/polo), exact fit (slim/regular/loose), all colors, prints, patterns, and design details exactly as shown.",
+    "Pants / Jeans":
+      "lower body clothing item - pants or jeans. Preserve exact length (full/cropped/ankle), exact fit (slim/straight/wide-leg), waistband style, all colors, wash, and design details exactly as shown.",
+    "Dress / Gown":
+      "full body clothing item - dress or gown. Preserve exact length (mini/midi/maxi), sleeve style (sleeveless/short/long), neckline, silhouette (A-line/fitted/flowy), all colors and design details exactly as shown.",
+    "Jacket / Coat":
+      "outerwear - jacket or coat. Preserve open or closed front, exact sleeve length, lapel and collar style, length (cropped/regular/long), all buttons, zippers and design details exactly as shown.",
+    "Lehenga":
+      "Indian ethnic lehenga. Preserve all embroidery, mirror work, colors, patterns, dupatta, and design details exactly as shown.",
+    "Saree":
+      "Indian ethnic saree. Preserve drape style, border design, pallu, colors, embroidery and all design details exactly as shown.",
+    "Kurta / Kurti":
+      "Indian ethnic kurta or kurti. Preserve neckline style, sleeve length, embroidery, prints, colors and all design details exactly as shown.",
+    "Ethnic Jacket":
+      "Indian ethnic jacket or nehru jacket. Preserve embroidery, colors, buttons, collar, length and all design details exactly as shown.",
   };
-  return descriptions[garment?.label] || `${garment?.label || "clothing"} - preserve all garment details sleeve length collar neckline fit measurements exactly as shown in garment image`;
+  return (
+    map[garment?.label] ||
+    `${garment?.label || "clothing"} - preserve all design details, colors, patterns, sleeve length, collar and fit exactly as shown in the garment image.`
+  );
 };
 
+// ── Main try-on route ─────────────────────────────────────────────────────────
 app.post("/tryon", async (req, res) => {
+  const t0 = Date.now();
+  console.log("\n── New Try-On Request ──────────────────────────────");
+
   try {
     if (!process.env.REPLICATE_API_KEY) {
-      return res.status(500).json({ success: false, error: "REPLICATE_API_KEY is not set" });
+      return res.status(500).json({ success: false, error: "REPLICATE_API_KEY not set on server." });
     }
 
     const { personImg, clothImg, garment } = req.body;
+
     if (!personImg || !clothImg) {
-      return res.status(400).json({ success: false, error: "personImg and clothImg are required" });
+      return res.status(400).json({ success: false, error: "personImg and clothImg are required." });
     }
 
-    // ── Step 1: Preprocess both images for maximum accuracy ───────────────
-    console.log("Step 1: Preprocessing images for optimal quality...");
+    // ── STEP 1: Preprocess both images in parallel ────────────────────────
+    console.log("⚡ Step 1: Preprocessing both images in parallel...");
     const [processedPerson, processedCloth] = await Promise.all([
       preprocessImage(personImg, "person"),
       preprocessImage(clothImg, "garment"),
     ]);
-    console.log("Images preprocessed!");
+    console.log(`✓ Preprocessed in ${Date.now() - t0}ms`);
 
-    // ── Step 2: Remove background from person photo ───────────────────────
-    console.log("Step 2: Skipping background removal for speed");
-let cleanPersonImg = processedPerson;
+    // ── STEP 2: Upload BOTH to Replicate in parallel ──────────────────────
+    // Uploading gives Replicate a stable URL = faster model loading
+    console.log("⚡ Step 2: Uploading both images to Replicate in parallel...");
+    const t1 = Date.now();
+    const [personUrl, garmentUrl] = await Promise.all([
+      uploadToReplicate(processedPerson),
+      uploadToReplicate(processedCloth),
+    ]);
+    console.log(`✓ Both uploaded in ${Date.now() - t1}ms`);
 
-    // ── Step 3: Upload garment to Replicate for better processing ─────────
-    console.log("Step 3: Uploading garment image...");
-    const garmentUrl = await uploadToReplicate(processedCloth);
+    // ── STEP 3: Run IDM-VTON ──────────────────────────────────────────────
+    console.log("⚡ Step 3: Running IDM-VTON AI...");
+    const t2 = Date.now();
 
-    // ── Step 4: Build detailed garment description ────────────────────────
-    const garmentDescription = buildGarmentDescription(garment);
-    console.log("Garment description:", garmentDescription.substring(0, 80) + "...");
+    const category = garment?.category || "upper_body";
 
-    // ── Step 5: Run IDM-VTON with maximum quality settings ────────────────
-    console.log("Step 4: Running AI try-on with maximum quality settings...");
     const output = await replicate.run(
       "cuuupid/idm-vton:0513734a452173b8173e907e3a59d19a36266e55b48528559432bd21c7d7e985",
       {
         input: {
-          human_img:       cleanPersonImg,
-          garm_img:        garmentUrl,
-          garment_des:     garmentDescription,
-          category:        garment?.category || "upper_body",
+          // ✅ KEY: person image — preserved body, pose, face, skin tone
+          human_img: personUrl,
 
-          // ✅ Maximum accuracy settings
-          is_checked:      true,   // auto-masking for better body detection
-          is_checked_crop: garment?.category === "upper_body",   // handles partial/half body
-          denoise_steps: 30,     // 30→50: much better detail preservation
-          guidance_scale: 2.5,    // sharper garment detail transfer
-          seed:            Math.floor(Math.random() * 99999), // random = better results
-        }
+          // ✅ Garment image
+          garm_img: garmentUrl,
+
+          // ✅ Detailed description helps preserve garment details
+          garment_des: buildGarmentDescription(garment),
+
+          // ✅ Category — tells model which body part to dress
+          category: category,
+
+          // ✅ is_checked: true = model auto-detects masking area
+          // This is critical for body preservation
+          is_checked: true,
+
+          // ✅ is_checked_crop: true = handles partial body / half body photos
+          is_checked_crop: true,
+
+          // ✅ Speed vs Quality balance:
+          // 30 steps = fastest with acceptable quality
+          // 40 steps = good balance (recommended)
+          // 50 steps = best quality, slower
+          denoise_steps: 30,
+
+          // ✅ guidance_scale:
+          // 2.0 = fastest, softer garment transfer
+          // 2.5 = good balance — garment details clearer
+          guidance_scale: 2.0,
+
+          // ✅ Random seed = different result each time (avoids repetition)
+          seed: Math.floor(Math.random() * 99999),
+        },
       }
     );
 
-    console.log("Output received:", JSON.stringify(output).substring(0, 100));
+    console.log(`✓ IDM-VTON done in ${Date.now() - t2}ms`);
+    console.log("Raw output:", JSON.stringify(output).substring(0, 120));
 
-    // ── Extract URL ───────────────────────────────────────────────────────
+    // ── STEP 4: Extract image URL from output ─────────────────────────────
     let imageUrl = null;
+
     if (Array.isArray(output)) {
       for (const item of output) {
         const str = String(item);
@@ -168,30 +196,56 @@ let cleanPersonImg = processedPerson;
       if (str.startsWith("http")) imageUrl = str;
     }
 
-    console.log("Final image URL:", imageUrl);
-
-    if (!imageUrl || !imageUrl.startsWith("http")) {
-      return res.status(500).json({ success: false, error: "Could not get image from AI" });
+    if (!imageUrl?.startsWith("http")) {
+      console.error("No valid image URL in output:", output);
+      return res.status(500).json({ success: false, error: "AI did not return a valid image. Please try again." });
     }
+
+    console.log(`✅ TOTAL: ${Date.now() - t0}ms`);
+    console.log("Final URL:", imageUrl.substring(0, 70) + "...");
 
     return res.json({ success: true, image: imageUrl });
 
   } catch (err) {
-    console.error("Error:", err.message);
+    console.error("❌ Error:", err.message);
 
+    // ── Friendly error messages ───────────────────────────────────────────
     if (err.message?.includes("list index out of range")) {
       return res.status(400).json({
         success: false,
-        error: "Person not detected clearly. Please use a photo where the full person is visible — standing straight works best.",
+        error: "Could not detect the person clearly in the photo. Please use a well-lit photo where the full person is visible and standing straight.",
       });
     }
 
-    return res.status(500).json({ success: false, error: err.message || "Server error" });
+    if (err.message?.includes("NSFW")) {
+      return res.status(400).json({
+        success: false,
+        error: "Photo was flagged. Please use a clear, appropriate photo.",
+      });
+    }
+
+    if (err.message?.includes("insufficient")) {
+      return res.status(402).json({
+        success: false,
+        error: "AI service credits exhausted. Please contact support.",
+      });
+    }
+
+    return res.status(500).json({
+      success: false,
+      error: err.message || "Something went wrong. Please try again.",
+    });
   }
+});
+
+// ── Health check with timing ──────────────────────────────────────────────────
+app.get("/ping", (req, res) => {
+  res.json({ pong: true, ts: Date.now() });
 });
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-  console.log(`✅ Backend running on port ${PORT}`);
-  console.log(`✅ API key: ${process.env.REPLICATE_API_KEY ? "SET ✓" : "NOT SET ✗"}`);
+  console.log(`\n✅ Pooja Textiles Backend running on port ${PORT}`);
+  console.log(`✅ Replicate API key: ${process.env.REPLICATE_API_KEY ? "SET ✓" : "NOT SET ✗"}`);
+  console.log(`✅ Ready to serve try-on requests\n`);
 });
