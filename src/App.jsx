@@ -38,7 +38,19 @@ const readFileAsDataURL = (file) => new Promise((res,rej) => {
 });
 
 const GARMENT_TYPES = [
-  { label:"T-Shirt / Shirt", short:"Top", icon:"👕", category:"upper_body" },
+ { 
+  label: "T-Shirt",
+  short: "T-Shirt",
+  icon: "👕",
+  category: "upper_body"
+},
+
+{
+  label: "Shirt",
+  short: "Shirt",
+  icon: "👔",
+  category: "upper_body"
+},
 { label:"Pants / Jeans", short:"Pants", icon:"👖", category:"lower_body" },
 { label:"Dress / Gown", short:"Dress", icon:"👗", category:"dresses" },
 { label:"Jacket / Coat", short:"Jacket", icon:"🧥", category:"upper_body" },

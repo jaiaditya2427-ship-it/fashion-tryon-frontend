@@ -76,8 +76,11 @@ const uploadToReplicate = async (dataUrl) => {
 // Detailed prompts help IDM-VTON preserve garment details accurately
 const buildGarmentDescription = (garment) => {
   const map = {
-    "T-Shirt / Shirt":
-      "upper body clothing item - shirt or t-shirt. Preserve exact sleeve length (short/half/full), exact collar style (v-neck/round/polo), exact fit (slim/regular/loose), all colors, prints, patterns, and design details exactly as shown.",
+    "T-Shirt":
+  "upper body t-shirt. Preserve exact sleeve length (short or half sleeve), exact neckline (round neck, V-neck, crew neck), exact fit (slim, regular, oversized), fabric texture, colors, logos, prints, graphics, stitching and every design detail exactly as shown in the garment image.",
+
+"Shirt":
+  "upper body button shirt. Preserve exact collar style (formal, spread, button-down, mandarin), exact sleeve length (full or half sleeve), cuffs, buttons, chest pocket, stripes, checks, embroidery, logos, fabric texture, stitching, fit (slim, regular, relaxed), colors and every design detail exactly as shown in the garment image.",
     "Pants / Jeans":
       "lower body clothing item - pants or jeans. Preserve exact length (full/cropped/ankle), exact fit (slim/straight/wide-leg), waistband style, all colors, wash, and design details exactly as shown.",
     "Dress / Gown":
