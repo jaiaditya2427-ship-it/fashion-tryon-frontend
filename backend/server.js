@@ -76,90 +76,91 @@ const uploadToReplicate = async (dataUrl) => {
 // Detailed prompts help IDM-VTON preserve garment details accurately
 const buildGarmentDescription = (garment) => {
   const map = {
-    "T-Shirt":
-  "upper body t-shirt. Preserve exact sleeve length (short or half sleeve), exact neckline (V-neck, crew neck), exact fit (slim, regular, oversized), fabric texture, colors, logos, prints, graphics, full sleeves, half sleeves stitching and every design detail exactly as shown in the garment image.",
+  "T-Shirt":
+    "Upper body t-shirt. Preserve exact sleeve length, neckline (round, crew, V-neck, Henley), fit (slim, regular, oversized), stitching, graphics, logos, prints, colors and fabric texture exactly as shown. Never convert into a collared shirt.",
 
-"Shirt":
-`Professional formal or casual button-up shirt.
+  "Shirt": `
+The customer is already wearing a collared shirt.
 
-Supported collar styles:
+Only transfer the uploaded shirt's fabric, print, embroidery, texture, pattern and color.
 
-• Shirt Collar
-• Spread Collar
-• Button-Up Collar
-• Button-Down Collar
-• Band Collar
-• Chinese Collar
-• Mandarin Collar
-• Regular Collar
-
-Supported shirt styles:
-
-• Formal Shirt
-• Casual Shirt
-• Office Shirt
-• Oxford Shirt
-• Linen Shirt
-• Cotton Shirt
-• Denim Shirt
+Do not redesign the customer's shirt.
 
 Preserve exactly:
 
-• Collar shape
-• Collar size
-• Collar stiffness
-• Button placket
-• Buttons
-• Chest pocket
-• Sleeve length
-• Half sleeve
-• Full sleeve
-• Cuffs
-• Shoulder seams
-• Shirt length
-• Slim Fit
-• Regular Fit
-• Relaxed Fit
-• Oversized Fit
-• Cotton fabric
-• Linen fabric
-• Denim fabric
-• Oxford fabric
-• Stripes
-• Checks
-• Prints
-• Embroidery
-• Logos
-• Stitching
-• Fabric texture
-• Color accuracy
+- Collar type
+- Collar shape
+- Collar size
+- Collar height
+- Collar opening
+- Sleeve length
+- Half sleeve
+- Full sleeve
+- Shoulder seams
+- Armhole position
+- Chest pocket
+- Pocket position
+- Button placket
+- Buttons
+- Cuffs
+- Shirt length
+- Hem
+- Fit
+- Slim Fit
+- Regular Fit
+- Relaxed Fit
+- Oversized Fit
 
-This is ALWAYS a collared button-up shirt.
+Supported collars:
 
-Never convert it into:
+- Shirt Collar
+- Spread Collar
+- Button Down Collar
+- Button Up Collar
+- Band Collar
+- Chinese Collar
+- Mandarin Collar
+- Regular Collar
 
-• T-Shirt
-• Polo T-Shirt
-• Round Neck
-• Crew Neck
-• V-Neck
-• Sweatshirt
-• Hoodie
+Only replace:
 
-Always preserve the original collar, buttons, cuffs, pockets, shirt construction, fabric, texture and design exactly as shown in the uploaded garment image while preserving the customer's body shape and pose.`,
-    "Pants / Jeans":
-      "lower body clothing item - pants or jeans. Preserve exact length (full/cropped/ankle), exact fit (slim/straight/wide-leg), waistband style, all colors, wash, and design details exactly as shown.",
-    "Dress / Gown":
-      "full body clothing item - dress or gown. Preserve exact length (mini/midi/maxi), sleeve style (sleeveless/short/long), neckline, silhouette (A-line/fitted/flowy), all colors and design details exactly as shown.",
-    "Jacket / Coat":
-      "outerwear - jacket or coat. Preserve open or closed front, exact sleeve length, lapel and collar style, length (cropped/regular/long), all buttons, zippers and design details exactly as shown.",
-    "Lehenga":
-      "Indian ethnic lehenga. Preserve all embroidery, mirror work, colors, patterns, dupatta, and design details exactly as shown.",
-    "Kurta / Kurti":
-      "Indian ethnic kurta or kurti. Preserve neckline style, sleeve length, embroidery, prints, colors and all design details exactly as shown.",
-    "Ethnic Jacket":
-      "Indian ethnic jacket or nehru jacket. Preserve embroidery, colors, buttons, collar, length and all design details exactly as shown.",
-  };
+- Fabric
+- Print
+- Pattern
+- Texture
+- Embroidery
+- Logo
+- Color
+
+Never convert into a T-Shirt.
+
+Never change collar style.
+
+Never change sleeve length.
+
+Never reconstruct the shirt.
+
+Keep the customer's original shirt geometry exactly the same while transferring only the visual appearance of the uploaded shirt.
+`,
+
+  "Pants / Jeans":
+    "Lower body pants or jeans. Preserve exact waist, length, fit, pockets, zipper, stitching, wash, color and fabric texture exactly.",
+
+  "Dress / Gown":
+    "Full body dress or gown. Preserve exact neckline, sleeves, silhouette, fit, embroidery, colors, length and fabric exactly.",
+
+  "Jacket / Coat":
+    "Outerwear jacket or coat. Preserve zipper, buttons, lapels, collar, pockets, sleeve length, fit and fabric exactly.",
+
+  "Lehenga":
+    "Indian ethnic lehenga. Preserve embroidery, mirror work, dupatta, flare, colors, borders and fabric exactly.",
+
+  "Kurta / Kurti":
+    "Indian kurta or kurti. Preserve neckline, collar, sleeve length, embroidery, prints, colors and fabric exactly.",
+
+  "Ethnic Jacket":
+    "Indian ethnic jacket. Preserve collar, buttons, embroidery, fit, fabric and colors exactly.",
+};
   return (
     map[garment?.label] ||
     `${garment?.label || "clothing"} - preserve all design details, colors, patterns, sleeve length, collar and fit exactly as shown in the garment image.`
@@ -238,7 +239,7 @@ app.post("/tryon", async (req, res) => {
           // ✅ guidance_scale:
           // 2.0 = fastest, softer garment transfer
           // 2.5 = good balance — garment details clearer
-          guidance_scale: 2.8,
+          guidance_scale: 2.5,
 
           // ✅ Random seed = different result each time (avoids repetition)
           seed: Math.floor(Math.random() * 999999),
