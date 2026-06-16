@@ -77,7 +77,7 @@ const uploadToReplicate = async (dataUrl) => {
 const buildGarmentDescription = (garment) => {
   const map = {
     "T-Shirt":
-  "upper body t-shirt. Preserve exact sleeve length (short or half sleeve), exact neckline (round neck, V-neck, crew neck), exact fit (slim, regular, oversized), fabric texture, colors, logos, prints, graphics, stitching and every design detail exactly as shown in the garment image.",
+  "upper body t-shirt. Preserve exact sleeve length (short or half sleeve), exact neckline (V-neck, crew neck), exact fit (slim, regular, oversized), fabric texture, colors, logos, prints, graphics, full sleeves, half sleeves stitching and every design detail exactly as shown in the garment image.",
 
 "Shirt":
   "upper body button shirt. Preserve exact collar style (formal, spread, button-down, mandarin), exact sleeve length (full or half sleeve), cuffs, buttons, chest pocket, stripes, checks, embroidery, logos, fabric texture, stitching, fit (slim, regular, relaxed), colors and every design detail exactly as shown in the garment image.",
