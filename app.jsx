@@ -36,10 +36,69 @@ const haptic = (t = "light") => {
 
 // ── Garment Types ─────────────────────────────────────────────────────────────
 const GARMENT_TYPES = [
-  { id: "upper_body", label: "T-Shirt",  short: "Top",    icon: "👕", category: "upper_body" },
-  { id: "lower_body", label: "Pants",    short: "Bottom", icon: "👖", category: "lower_body" },
-  { id: "dresses",    label: "Dress",    short: "Dress",  icon: "👗", category: "dresses"    },
-  { id: "jacket",     label: "Jacket",   short: "Jacket", icon: "🧥", category: "upper_body" },
+  {
+    id: "tshirt",
+    label: "T-Shirt",
+    short: "T-Shirt",
+    icon: "👕",
+    category: "upper_body",
+  },
+
+  {
+    id: "shirt",
+    label: "Shirt",
+    short: "Shirt",
+    icon: "👔",
+    category: "upper_body",
+  },
+
+  {
+    id: "pants",
+    label: "Pants / Jeans",
+    short: "Bottom",
+    icon: "👖",
+    category: "lower_body",
+  },
+
+  {
+    id: "dress",
+    label: "Dress / Gown",
+    short: "Dress",
+    icon: "👗",
+    category: "dresses",
+  },
+
+  {
+    id: "jacket",
+    label: "Jacket / Coat",
+    short: "Jacket",
+    icon: "🧥",
+    category: "upper_body",
+  },
+
+  {
+    id: "lehenga",
+    label: "Lehenga",
+    short: "Lehenga",
+    icon: "👗",
+    category: "ethnic_wear",
+  },
+
+  {
+    id: "kurta",
+    label: "Kurta / Kurti",
+    short: "Kurta",
+    icon: "👘",
+    category: "ethnic_wear",
+  },
+
+  {
+    id: "ethnic",
+    label: "Ethnic Jacket",
+    short: "Ethnic",
+    icon: "🧥",
+    category: "ethnic_wear",
+  },
 ];
 
 // ── Read file as base64 DataURL ───────────────────────────────────────────────

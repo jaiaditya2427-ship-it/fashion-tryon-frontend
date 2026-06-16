@@ -38,27 +38,27 @@ const readFileAsDataURL = (file) => new Promise((res,rej) => {
 });
 
 const GARMENT_TYPES = [
- { 
-  label: "T-Shirt",
-  short: "T-Shirt",
-  icon: "👕",
-  category: "upper_body"
-},
+  {
+    label: "T-Shirt",
+    short: "T-Shirt",
+    icon: "👕",
+    category: "upper_body"
+  },
 
-{
-  label: "Shirt",
-  short: "Shirt",
-  icon: "👔",
-  category: "upper_body"
-},
-{ label:"Pants / Jeans", short:"Pants", icon:"👖", category:"lower_body" },
-{ label:"Dress / Gown", short:"Dress", icon:"👗", category:"dresses" },
-{ label:"Jacket / Coat", short:"Jacket", icon:"🧥", category:"upper_body" },
+  {
+    label: "Shirt",
+    short: "Shirt",
+    icon: "👔",
+    category: "upper_body"
+  },
 
-{ label:"Lehenga", short:"Lehenga", icon:"👗", category:"ethnic_wear" },
-{ label:"Saree", short:"Saree", icon:"🥻", category:"ethnic_wear" },
-{ label:"Kurta / Kurti", short:"Kurta", icon:"👘", category:"ethnic_wear" },
-{ label:"Ethnic Jacket", short:"Ethnic", icon:"🧥", category:"ethnic_wear" },
+  { label: "Pants / Jeans", short: "Pants", icon: "👖", category: "lower_body" },
+  { label: "Dress / Gown", short: "Dress", icon: "👗", category: "dresses" },
+  { label: "Jacket / Coat", short: "Jacket", icon: "🧥", category: "upper_body" },
+
+  { label: "Lehenga", short: "Lehenga", icon: "👗", category: "ethnic_wear" },
+  { label: "Kurta / Kurti", short: "Kurta", icon: "👘", category: "ethnic_wear" },
+  { label: "Ethnic Jacket", short: "Ethnic", icon: "🧥", category: "ethnic_wear" },
 ];
 
 const FRIENDLY_ERRORS = {
@@ -772,7 +772,7 @@ Garment:
           <div className="loadover">
             <div className="lring"/>
             <div className="ltext">{loadMsg}</div>
-            <div className="lsub">This takes 30–90 seconds</div>
+            <div className="lsub">This usually takes 15–30 seconds</div>
             <div className="lbar"/>
             <div className="pipeline">
               {PIPE_STEPS.map((s,i)=>(
